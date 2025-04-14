@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@nocobase/*": ["./packages/*/*/src/*"]
+    }
+  }
+}

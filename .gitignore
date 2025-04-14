@@ -25,7 +25,6 @@ cache/diskstore-*
 **/.dumi/tmp-production
 packages/core/client/docs/contributing.md
 packages/core/app/client/src/.plugins
-tsconfig.paths.json
 /playwright
 .swc
 ncc-cache/
