@@ -14,19 +14,44 @@ services:
     restart: always
     ports:
       - "${VERDACCIO_PORT}:${VERDACCIO_PORT}"
+    volumes:
+      - verdaccio_data:/verdaccio/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${VERDACCIO_PORT}/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   nocobase:
     image: node:20
     networks:
       - nocobase
     command: >
-      bash -c "yarn install && yarn build && yarn start"
+      bash -c "yarn install --legacy-peer-deps && yarn build && yarn start"
     working_dir: /app
     env_file: ./.env
     volumes:
       - ./:/app
+      - nocobase_node_modules:/app/node_modules
     expose:
       - ${APP_PORT}
     ports:
       - "${APP_PORT}:${APP_PORT}"
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${APP_PORT}/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    environment:
+      - NODE_ENV=production
+      - APP_PORT=${APP_PORT}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+
+volumes:
+  verdaccio_data:
+  nocobase_node_modules:
