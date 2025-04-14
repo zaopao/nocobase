@@ -1,22 +1,32 @@
 version: "3"
+
 networks:
   nocobase:
     driver: bridge
+
 services:
-  nocobase:
-    image: registry.cn-shanghai.aliyuncs.com/nocobase/nocobase:latest
+  verdaccio:
+    image: verdaccio/verdaccio
     networks:
       - nocobase
     environment:
-      - APP_ENV=${APP_ENV}
-      - APP_PORT=${APP_PORT}
-      - DB_DIALECT=${DB_DIALECT}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_DATABASE=${DB_DATABASE}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_LOGGING=${DB_LOGGING}
-    ports:
-      - "${APP_PORT}:80"
+      VERDACCIO_PORT: ${VERDACCIO_PORT}
     restart: always
+    ports:
+      - "${VERDACCIO_PORT}:${VERDACCIO_PORT}"
+
+  nocobase:
+    image: node:20
+    networks:
+      - nocobase
+    command: >
+      bash -c "yarn install && yarn build && yarn start"
+    working_dir: /app
+    env_file: ./.env
+    volumes:
+      - ./:/app
+    expose:
+      - ${APP_PORT}
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    restart: unless-stopped
